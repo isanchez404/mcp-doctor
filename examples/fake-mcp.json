@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "fake": {
+      "command": "python",
+      "args": ["examples/fake-mcp-server.py"]
+    }
+  }
+}

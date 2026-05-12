@@ -7,15 +7,16 @@ from mcp_doctor.cli import app
 runner = CliRunner()
 
 
-def test_doctor_valid_config_exits_zero_with_summary(tmp_path):
+def test_doctor_valid_config_exits_zero_with_summary(tmp_path, fake_mcp_server_config):
     config_path = tmp_path / "valid.json"
-    config_path.write_text(json.dumps({"mcpServers": {"python": {"command": "python"}}}))
+    config_path.write_text(json.dumps({"mcpServers": {"fake": fake_mcp_server_config}}))
 
     result = runner.invoke(app, ["doctor", str(config_path)])
 
     assert result.exit_code == 0
     assert "Doctor passed" in result.output
     assert "1 passed, 0 failed" in result.output
+    assert "fake: 1 tool(s): echo" in result.output
 
 
 def test_doctor_probe_failure_exits_one_with_summary_and_code(tmp_path):

@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 from mcp_doctor.config import MCPConfig, MCPServerConfig
@@ -8,9 +9,14 @@ def _config(*servers: MCPServerConfig) -> MCPConfig:
     return MCPConfig(servers={server.name: server for server in servers}, source_path=Path("test.json"))
 
 
-def test_doctor_passes_when_all_servers_are_valid_and_probeable():
+def test_doctor_passes_when_all_servers_are_valid_and_probeable(fake_mcp_server_path):
     config = _config(
-        MCPServerConfig(name="python", command="python", raw={"command": "python"}),
+        MCPServerConfig(
+            name="fake",
+            command=sys.executable,
+            args=[str(fake_mcp_server_path)],
+            raw={"command": sys.executable, "args": [str(fake_mcp_server_path)]},
+        ),
         MCPServerConfig(name="remote", url="https://example.com/mcp", raw={"url": "https://example.com/mcp"}),
     )
 
@@ -42,9 +48,14 @@ def test_doctor_reports_validation_errors_without_probeing_invalid_config():
     assert [d.code for d in report.diagnostics] == ["MCPD_CONFIG_TRANSPORT_CONFLICT"]
 
 
-def test_doctor_reports_probe_errors_for_all_servers():
+def test_doctor_reports_probe_errors_for_all_servers(fake_mcp_server_path):
     config = _config(
-        MCPServerConfig(name="python", command="python", raw={"command": "python"}),
+        MCPServerConfig(
+            name="fake",
+            command=sys.executable,
+            args=[str(fake_mcp_server_path)],
+            raw={"command": sys.executable, "args": [str(fake_mcp_server_path)]},
+        ),
         MCPServerConfig(
             name="missing",
             command="definitely-not-a-real-mcp-command-xyz",

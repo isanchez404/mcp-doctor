@@ -41,6 +41,19 @@ Run a full doctor check across all configured servers:
 uv run mcp-doctor doctor examples/valid-claude.json
 ```
 
+Run a full stdio MCP handshake smoke test with the bundled fake server:
+
+```bash
+uv run mcp-doctor doctor examples/fake-mcp.json
+```
+
+Expected output includes the discovered tools:
+
+```text
+Doctor passed: 1 passed, 0 failed, 1 total
+  fake: 1 tool(s): echo
+```
+
 Probe intentionally broken config:
 
 ```bash
@@ -50,7 +63,7 @@ uv run mcp-doctor doctor examples/missing-command.json
 
 ## Why this exists
 
-MCP is becoming the integration substrate for AI agents, but setup failures are still opaque: missing executables, path issues, invalid schemas, auth problems, server timeouts, transport mismatches, and client-specific config differences.
+MCP is becoming the integration substrate for AI agents, but setup failures are still opaque: missing executables, path issues, invalid schemas, auth problems, server timeouts, transport mismatches, bad stdout/stderr behavior, and client-specific config differences.
 
 MCP Doctor aims to become the boring, reliable debugging layer underneath agent tooling.
 

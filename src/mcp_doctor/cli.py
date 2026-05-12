@@ -76,11 +76,20 @@ def doctor(config_path: Path) -> None:
 
     if report.ok:
         console.print(f"[green]Doctor passed[/green]: {summary}")
+        _print_handshake_results(report.handshake_results)
         raise typer.Exit(0)
 
     console.print(f"[red]Doctor found problems[/red]: {summary}")
+    _print_handshake_results(report.handshake_results)
     _print_diagnostics(report.diagnostics)
     raise typer.Exit(1)
+
+
+def _print_handshake_results(handshake_results: dict) -> None:
+    for server_name, result in handshake_results.items():
+        if result.ok:
+            tools = ", ".join(result.tool_names) if result.tool_names else "no tools reported"
+            console.print(f"  [green]{server_name}[/green]: {len(result.tool_names)} tool(s): {tools}")
 
 
 def _print_diagnostics(diagnostics: list[Diagnostic]) -> None:
