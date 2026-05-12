@@ -12,6 +12,9 @@ Today this repo is being bootstrapped. The first usable CLI will focus on:
 - normalizing common client config shapes such as `mcpServers` and `mcp_servers`
 - producing structured diagnostics for common mistakes
 - probing local stdio server prerequisites
+- running real stdio MCP handshakes (`initialize` + `tools/list`)
+- using configured MCP env vars without leaking the whole shell environment
+- redacting credential-like values from diagnostics
 
 ## Planned commands
 
@@ -22,6 +25,24 @@ mcp-doctor doctor path/to/config.json
 ```
 
 ## Current usage
+
+MCP Doctor supports Claude-style `mcpServers` and Hermes-style `mcp_servers` config files. Stdio server configs may include:
+
+```json
+{
+  "mcpServers": {
+    "example": {
+      "command": "npx",
+      "args": ["-y", "some-mcp-server"],
+      "env": {"EXPLICIT_TOKEN": "..."},
+      "timeout": 120,
+      "connect_timeout": 10
+    }
+  }
+}
+```
+
+For stdio handshakes, MCP Doctor inherits only a safe baseline environment (`PATH`, `HOME`, `USER`, locale/terminal temp vars, and `XDG_*`) plus explicit server `env` values. It does not pass your full shell environment to MCP subprocesses.
 
 Validate a config:
 
@@ -65,7 +86,7 @@ uv run mcp-doctor doctor examples/missing-command.json
 
 MCP is becoming the integration substrate for AI agents, but setup failures are still opaque: missing executables, path issues, invalid schemas, auth problems, server timeouts, transport mismatches, bad stdout/stderr behavior, and client-specific config differences.
 
-MCP Doctor aims to become the boring, reliable debugging layer underneath agent tooling.
+MCP Doctor aims to become the boring, reliable debugging layer underneath agent tooling. Its diagnostics are designed to be safe to paste into issues: stderr and protocol errors are redacted for common secret patterns such as GitHub tokens, `sk-...` keys, bearer tokens, passwords, and API keys.
 
 Diagnostics include actionable fix hints, for example:
 

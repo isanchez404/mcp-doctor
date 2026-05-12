@@ -20,6 +20,8 @@ class MCPServerConfig:
     env: dict[str, str] = field(default_factory=dict)
     url: str | None = None
     headers: dict[str, str] = field(default_factory=dict)
+    timeout: float = 120
+    connect_timeout: float = 5
     raw: dict[str, Any] = field(default_factory=dict)
 
 
@@ -88,5 +90,7 @@ def _normalize_server(name: str, raw_server: dict[str, Any]) -> MCPServerConfig:
         env=dict(raw_server.get("env", {})),
         url=raw_server.get("url"),
         headers=dict(raw_server.get("headers", {})),
+        timeout=raw_server.get("timeout", 120),
+        connect_timeout=raw_server.get("connect_timeout", 5),
         raw=dict(raw_server),
     )

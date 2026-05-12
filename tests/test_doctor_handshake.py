@@ -46,3 +46,26 @@ def test_doctor_reports_handshake_failure(tmp_path):
     assert report.passed_servers == 0
     assert report.failed_servers == 1
     assert [d.code for d in report.diagnostics] == ["MCPD_HANDSHAKE_PROCESS_EXITED"]
+
+
+def test_doctor_uses_server_connect_timeout(tmp_path):
+    slow_path = tmp_path / "slow.py"
+    slow_path.write_text("import time; time.sleep(2)")
+    config = MCPConfig(
+        servers={
+            "slow": MCPServerConfig(
+                name="slow",
+                command=sys.executable,
+                args=[str(slow_path)],
+                connect_timeout=0.05,
+                raw={"command": sys.executable, "args": [str(slow_path)], "connect_timeout": 0.05},
+            )
+        },
+        source_path=tmp_path / "config.json",
+    )
+
+    report = doctor_config(config)
+
+    assert report.ok is False
+    assert report.failed_servers == 1
+    assert [d.code for d in report.diagnostics] == ["MCPD_HANDSHAKE_TIMEOUT"]

@@ -63,3 +63,25 @@ def test_load_config_missing_file_raises_friendly_error(tmp_path):
 
     assert "does not exist" in str(exc_info.value)
     assert str(missing_path) in str(exc_info.value)
+
+
+def test_loads_timeout_fields(tmp_path):
+    config_path = tmp_path / "timeouts.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "mcpServers": {
+                    "slow": {
+                        "command": "python",
+                        "timeout": 45,
+                        "connect_timeout": 0.25,
+                    }
+                }
+            }
+        )
+    )
+
+    config = load_config(config_path)
+
+    assert config.servers["slow"].timeout == 45
+    assert config.servers["slow"].connect_timeout == 0.25

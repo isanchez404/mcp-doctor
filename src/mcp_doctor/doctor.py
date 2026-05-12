@@ -45,7 +45,7 @@ def doctor_config(config: MCPConfig) -> DoctorReport:
             continue
 
         if server.command:
-            handshake_result = handshake_stdio_server(server)
+            handshake_result = handshake_stdio_server(server, timeout_seconds=server.connect_timeout)
             handshake_results[server_name] = handshake_result
             diagnostics.extend(handshake_result.diagnostics)
             if not handshake_result.ok:
