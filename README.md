@@ -35,10 +35,17 @@ Probe whether a stdio server command is available on PATH:
 uv run mcp-doctor probe examples/valid-claude.json --server filesystem
 ```
 
+Run a full doctor check across all configured servers:
+
+```bash
+uv run mcp-doctor doctor examples/valid-claude.json
+```
+
 Probe intentionally broken config:
 
 ```bash
 uv run mcp-doctor probe examples/missing-command.json --server missing
+uv run mcp-doctor doctor examples/missing-command.json
 ```
 
 ## Why this exists

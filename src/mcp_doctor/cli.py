@@ -7,6 +7,7 @@ from rich.console import Console
 
 from mcp_doctor.config import ConfigLoadError, load_config
 from mcp_doctor.diagnostics import Diagnostic, has_errors
+from mcp_doctor.doctor import doctor_config
 from mcp_doctor.probe import probe_server
 from mcp_doctor.validation import validate_config
 
@@ -59,6 +60,27 @@ def probe(config_path: Path, server: str = typer.Option(..., "--server", "-s")) 
 
     _print_diagnostics(result.diagnostics)
     raise typer.Exit(1 if has_errors(result.diagnostics) else 0)
+
+
+@app.command()
+def doctor(config_path: Path) -> None:
+    """Validate config and probe every configured MCP server."""
+    try:
+        config = load_config(config_path)
+    except ConfigLoadError as exc:
+        err_console.print(f"[red]Config error:[/red] {exc}")
+        raise typer.Exit(2) from exc
+
+    report = doctor_config(config)
+    summary = f"{report.passed_servers} passed, {report.failed_servers} failed, {report.total_servers} total"
+
+    if report.ok:
+        console.print(f"[green]Doctor passed[/green]: {summary}")
+        raise typer.Exit(0)
+
+    console.print(f"[red]Doctor found problems[/red]: {summary}")
+    _print_diagnostics(report.diagnostics)
+    raise typer.Exit(1)
 
 
 def _print_diagnostics(diagnostics: list[Diagnostic]) -> None:
