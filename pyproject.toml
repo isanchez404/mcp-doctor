@@ -39,9 +39,9 @@ mcp = [
 mcp-doctor = "mcp_doctor.cli:app"
 
 [project.urls]
-Source = "https://github.com/isaac-sanchez/mcp-doctor"
-Issues = "https://github.com/isaac-sanchez/mcp-doctor/issues"
-Documentation = "https://github.com/isaac-sanchez/mcp-doctor#readme"
+Source = "https://github.com/isanchez404/mcp-doctor"
+Issues = "https://github.com/isanchez404/mcp-doctor/issues"
+Documentation = "https://github.com/isanchez404/mcp-doctor#readme"
 
 [build-system]
 requires = ["hatchling"]
