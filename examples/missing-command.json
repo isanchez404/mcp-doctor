@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "missing": {
+      "command": "definitely-not-a-real-mcp-command-xyz"
+    }
+  }
+}

@@ -21,6 +21,26 @@ mcp-doctor probe path/to/config.json --server filesystem
 mcp-doctor doctor path/to/config.json
 ```
 
+## Current usage
+
+Validate a config:
+
+```bash
+uv run mcp-doctor validate examples/valid-claude.json
+```
+
+Probe whether a stdio server command is available on PATH:
+
+```bash
+uv run mcp-doctor probe examples/valid-claude.json --server filesystem
+```
+
+Probe intentionally broken config:
+
+```bash
+uv run mcp-doctor probe examples/missing-command.json --server missing
+```
+
 ## Why this exists
 
 MCP is becoming the integration substrate for AI agents, but setup failures are still opaque: missing executables, path issues, invalid schemas, auth problems, server timeouts, transport mismatches, and client-specific config differences.
