@@ -27,6 +27,7 @@ def _validate_server(server: MCPServerConfig) -> list[Diagnostic]:
                 code="MCPD_CONFIG_TRANSPORT_CONFLICT",
                 message="Server defines both 'command' and 'url'. Choose stdio or HTTP transport, not both.",
                 path=base_path,
+                fix_hint="Remove either 'command' for stdio transport or 'url' for HTTP transport.",
             )
         )
     elif not server.command and not server.url:
@@ -36,6 +37,7 @@ def _validate_server(server: MCPServerConfig) -> list[Diagnostic]:
                 code="MCPD_CONFIG_TRANSPORT_MISSING",
                 message="Server must define either 'command' for stdio transport or 'url' for HTTP transport.",
                 path=base_path,
+                fix_hint="Add 'command' plus optional 'args' for a local stdio server, or add 'url' for a remote HTTP MCP server.",
             )
         )
 
@@ -46,6 +48,7 @@ def _validate_server(server: MCPServerConfig) -> list[Diagnostic]:
                 code="MCPD_CONFIG_ARGS_NOT_LIST",
                 message="Server 'args' must be a list of command arguments.",
                 path=f"{base_path}.args",
+                fix_hint="Change args to an array, e.g. \"args\": [\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/tmp\"].",
             )
         )
 
@@ -56,6 +59,7 @@ def _validate_server(server: MCPServerConfig) -> list[Diagnostic]:
                 code="MCPD_CONFIG_ENV_NOT_DICT",
                 message="Server 'env' must be an object/dictionary of environment variables.",
                 path=f"{base_path}.env",
+                fix_hint="Change env to an object, e.g. \"env\": {\"GITHUB_PERSONAL_ACCESS_TOKEN\": \"...\"}.",
             )
         )
 
@@ -66,6 +70,7 @@ def _validate_server(server: MCPServerConfig) -> list[Diagnostic]:
                 code="MCPD_CONFIG_HEADERS_NOT_DICT",
                 message="Server 'headers' must be an object/dictionary of HTTP headers.",
                 path=f"{base_path}.headers",
+                fix_hint="Change headers to an object, e.g. \"headers\": {\"Authorization\": \"Bearer ...\"}.",
             )
         )
 
@@ -80,6 +85,7 @@ def _validate_server(server: MCPServerConfig) -> list[Diagnostic]:
                         "Prefer forward slashes when possible, e.g. C:/Users/name/project."
                     ),
                     path=f"{base_path}.args[{index}]",
+                    fix_hint="Prefer forward slashes in MCP configs, e.g. C:/Users/name/project.",
                 )
             )
 

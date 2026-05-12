@@ -36,6 +36,8 @@ def test_doctor_probe_failure_exits_one_with_summary_and_code(tmp_path):
     assert "Doctor found problems" in result.output
     assert "0 passed, 1 failed" in result.output
     assert "MCPD_PROCESS_COMMAND_NOT_FOUND" in result.output
+    assert "Fix:" in result.output
+    assert "Install the executable" in result.output
 
 
 def test_doctor_missing_config_exits_two(tmp_path):

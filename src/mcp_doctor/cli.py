@@ -90,3 +90,5 @@ def _print_diagnostics(diagnostics: list[Diagnostic]) -> None:
             f"[{style}]{diagnostic.severity.upper()}[/{style}] "
             f"{diagnostic.code} {diagnostic.path}: {diagnostic.message}"
         )
+        if diagnostic.fix_hint:
+            console.print(f"  [cyan]Fix:[/cyan] {diagnostic.fix_hint}")

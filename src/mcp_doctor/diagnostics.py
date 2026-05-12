@@ -9,6 +9,7 @@ class Diagnostic:
     code: str
     message: str
     path: str
+    fix_hint: str | None = None
 
 
 def has_errors(diagnostics: list[Diagnostic]) -> bool:

@@ -53,3 +53,10 @@ uv run mcp-doctor doctor examples/missing-command.json
 MCP is becoming the integration substrate for AI agents, but setup failures are still opaque: missing executables, path issues, invalid schemas, auth problems, server timeouts, transport mismatches, and client-specific config differences.
 
 MCP Doctor aims to become the boring, reliable debugging layer underneath agent tooling.
+
+Diagnostics include actionable fix hints, for example:
+
+```text
+ERROR MCPD_PROCESS_COMMAND_NOT_FOUND servers.missing.command: Executable 'npx' was not found on PATH.
+  Fix: Install Node.js so npx is available, e.g. brew install node on macOS, or use an absolute path to npx.
+```
