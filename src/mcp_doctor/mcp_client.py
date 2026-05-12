@@ -229,7 +229,7 @@ def redact_secrets(text: str) -> str:
         r"gh[pousr]_[A-Za-z0-9_]{10,}",
         r"sk-[A-Za-z0-9_-]{10,}",
         r"Bearer\s+[A-Za-z0-9._~+/=-]+",
-        r"(?i)(password|passwd|pwd|secret|token|api[_-]?key|key)=([^\s,;]+)",
+        r"(?i)(password|passwd|pwd|secret|token|api[_-]?key|key)=([^\s,;'\"}]+)",
     ]
     redacted = text
     for pattern in patterns[:3]:

@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "auth-failure": {
+      "command": "python",
+      "args": ["examples/fixtures/auth-failure-server.py"]
+    },
+    "slow-startup": {
+      "command": "python",
+      "args": ["examples/fixtures/slow-startup-server.py"],
+      "connect_timeout": 0.25
+    },
+    "json-rpc-error": {
+      "command": "python",
+      "args": ["examples/fixtures/json-rpc-error-server.py"]
+    },
+    "noisy-stdout": {
+      "command": "python",
+      "args": ["examples/fixtures/noisy-stdout-server.py"]
+    },
+    "stderr-warning": {
+      "command": "python",
+      "args": ["examples/fixtures/stderr-warning-server.py"]
+    }
+  }
+}

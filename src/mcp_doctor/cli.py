@@ -11,7 +11,12 @@ from mcp_doctor.doctor import doctor_config
 from mcp_doctor.probe import probe_server
 from mcp_doctor.validation import validate_config
 
-app = typer.Typer(help="Diagnose MCP server configs and integrations.")
+app = typer.Typer(
+    help=(
+        "Diagnose MCP server configs and integrations. Example: "
+        "mcp-doctor doctor examples/fake-mcp.json"
+    )
+)
 console = Console()
 err_console = Console(stderr=True)
 

@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from mcp_doctor.config import MCPConfig, MCPServerConfig
-from mcp_doctor.mcp_client import handshake_stdio_server
+from mcp_doctor.mcp_client import handshake_stdio_server, redact_secrets
 
 
 def test_stdio_handshake_lists_tools(fake_mcp_server_path: Path):
@@ -128,3 +128,9 @@ def test_stdio_handshake_reports_plain_stdout_before_mcp_framing(tmp_path):
     assert result.ok is False
     assert result.diagnostics[0].code == "MCPD_HANDSHAKE_STDOUT_NOISE"
     assert "starting up on stdout" in result.diagnostics[0].message
+
+
+def test_redact_secrets_preserves_error_structure():
+    redacted = redact_secrets("{'message': 'bad token=sk-test-secret-value'}")
+
+    assert redacted == "{'message': 'bad token=[REDACTED]'}"

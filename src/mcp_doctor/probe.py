@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import shutil
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
 
 from mcp_doctor.config import MCPConfig, MCPServerConfig
 from mcp_doctor.diagnostics import Diagnostic
+from mcp_doctor.mcp_client import redact_secrets
 
 
 @dataclass(frozen=True)
@@ -42,7 +45,7 @@ def probe_server(config: MCPConfig, server_name: str) -> ProbeResult:
 
 def _probe_server(server: MCPServerConfig) -> list[Diagnostic]:
     if server.url:
-        return []
+        return _probe_http_server(server)
 
     if not server.command:
         return [
@@ -69,6 +72,63 @@ def _probe_server(server: MCPServerConfig) -> list[Diagnostic]:
         ]
 
     return []
+
+
+def _probe_http_server(server: MCPServerConfig) -> list[Diagnostic]:
+    assert server.url is not None
+    request = urllib.request.Request(server.url, headers=server.headers, method="GET")
+    try:
+        with urllib.request.urlopen(request, timeout=server.connect_timeout) as response:  # noqa: S310 - user-configured MCP URL diagnostics
+            status = response.status
+    except urllib.error.HTTPError as exc:
+        status = exc.code
+    except Exception as exc:  # noqa: BLE001 - surface connection failures as diagnostics
+        return [
+            Diagnostic(
+                severity="error",
+                code="MCPD_HTTP_UNREACHABLE",
+                message=f"HTTP MCP endpoint was not reachable: {redact_secrets(str(exc))}",
+                path=f"servers.{server.name}.url",
+                fix_hint="Check the URL, network access, TLS certificate, local tunnel, or server process, then retry probe or doctor.",
+            )
+        ]
+
+    if 200 <= status < 400:
+        return []
+
+    return [
+        Diagnostic(
+            severity="error",
+            code=_http_status_code(status),
+            message=f"HTTP MCP endpoint returned status {status}.",
+            path=f"servers.{server.name}.url",
+            fix_hint=_http_status_hint(status),
+        )
+    ]
+
+
+def _http_status_code(status: int) -> str:
+    if status == 401:
+        return "MCPD_HTTP_STATUS_UNAUTHORIZED"
+    if status == 403:
+        return "MCPD_HTTP_STATUS_FORBIDDEN"
+    if status == 404:
+        return "MCPD_HTTP_STATUS_NOT_FOUND"
+    if status >= 500:
+        return "MCPD_HTTP_STATUS_SERVER_ERROR"
+    return "MCPD_HTTP_STATUS_UNEXPECTED"
+
+
+def _http_status_hint(status: int) -> str:
+    if status == 401:
+        return "Check configured headers/auth for this server. Do not paste secret values into issues; names like Authorization are enough."
+    if status == 403:
+        return "Authentication worked but authorization was denied. Check token scopes, workspace access, or server allowlists."
+    if status == 404:
+        return "Check the MCP endpoint path; many servers expose /mcp, /sse, or a vendor-specific route."
+    if status >= 500:
+        return "The remote server is reachable but failing. Inspect server logs or provider status."
+    return "Check whether this endpoint is an MCP-compatible HTTP/StreamableHTTP endpoint and whether it requires different headers."
 
 
 def _missing_command_hint(command: str) -> str:

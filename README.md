@@ -12,9 +12,11 @@ Today this repo is being bootstrapped. The first usable CLI will focus on:
 - normalizing common client config shapes such as `mcpServers` and `mcp_servers`
 - producing structured diagnostics for common mistakes
 - probing local stdio server prerequisites
+- probing HTTP MCP endpoint reachability and status codes
 - running real stdio MCP handshakes (`initialize` + `tools/list`)
 - using configured MCP env vars without leaking the whole shell environment
 - redacting credential-like values from diagnostics
+- providing fixtures and issue templates for safe ecosystem debugging
 
 ## Planned commands
 
@@ -50,7 +52,7 @@ Validate a config:
 uv run mcp-doctor validate examples/valid-claude.json
 ```
 
-Probe whether a stdio server command is available on PATH:
+Probe whether a stdio server command is available on PATH, or whether an HTTP MCP endpoint is reachable:
 
 ```bash
 uv run mcp-doctor probe examples/valid-claude.json --server filesystem
@@ -81,6 +83,14 @@ Probe intentionally broken config:
 uv run mcp-doctor probe examples/missing-command.json --server missing
 uv run mcp-doctor doctor examples/missing-command.json
 ```
+
+Exercise real-world failure fixtures:
+
+```bash
+uv run mcp-doctor doctor examples/real-world-fixtures.json
+```
+
+The fixture set includes auth failure, slow startup, JSON-RPC error, noisy stdout, and stderr-only warning cases. See `docs/debugging-guide.md` for the intended troubleshooting flow and `docs/launch.md` for launch positioning.
 
 ## Why this exists
 

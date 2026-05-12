@@ -1,4 +1,6 @@
 import sys
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from mcp_doctor.config import MCPConfig, MCPServerConfig
@@ -9,24 +11,40 @@ def _config(*servers: MCPServerConfig) -> MCPConfig:
     return MCPConfig(servers={server.name: server for server in servers}, source_path=Path("test.json"))
 
 
+class _OkHandler(BaseHTTPRequestHandler):
+    def do_GET(self):  # noqa: N802 - stdlib API
+        self.send_response(200)
+        self.end_headers()
+
+    def log_message(self, format, *args):  # noqa: A002 - stdlib API
+        return
+
+
 def test_doctor_passes_when_all_servers_are_valid_and_probeable(fake_mcp_server_path):
-    config = _config(
-        MCPServerConfig(
-            name="fake",
-            command=sys.executable,
-            args=[str(fake_mcp_server_path)],
-            raw={"command": sys.executable, "args": [str(fake_mcp_server_path)]},
-        ),
-        MCPServerConfig(name="remote", url="https://example.com/mcp", raw={"url": "https://example.com/mcp"}),
-    )
+    http_server = ThreadingHTTPServer(("127.0.0.1", 0), _OkHandler)
+    thread = threading.Thread(target=http_server.serve_forever, daemon=True)
+    thread.start()
+    url = f"http://127.0.0.1:{http_server.server_address[1]}/mcp"
+    try:
+        config = _config(
+            MCPServerConfig(
+                name="fake",
+                command=sys.executable,
+                args=[str(fake_mcp_server_path)],
+                raw={"command": sys.executable, "args": [str(fake_mcp_server_path)]},
+            ),
+            MCPServerConfig(name="remote", url=url, raw={"url": url}),
+        )
 
-    report = doctor_config(config)
+        report = doctor_config(config)
 
-    assert report.ok is True
-    assert report.total_servers == 2
-    assert report.passed_servers == 2
-    assert report.failed_servers == 0
-    assert report.diagnostics == []
+        assert report.ok is True
+        assert report.total_servers == 2
+        assert report.passed_servers == 2
+        assert report.failed_servers == 0
+        assert report.diagnostics == []
+    finally:
+        http_server.shutdown()
 
 
 def test_doctor_reports_validation_errors_without_probeing_invalid_config():

@@ -1,0 +1,47 @@
+name: MCP diagnostic report
+description: Paste mcp-doctor output for an MCP server that is not working
+title: "[diagnostic]: "
+labels: [diagnostic, mcp]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an MCP setup issue. Please remove secrets before submitting. MCP Doctor redacts common secret patterns, but review your output anyway.
+  - type: textarea
+    id: command
+    attributes:
+      label: Command run
+      description: The mcp-doctor command you ran.
+      placeholder: mcp-doctor doctor path/to/config.json
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Diagnostic output
+      description: Paste the full mcp-doctor output.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Redacted server config
+      description: Paste only the affected server config with all tokens/passwords removed.
+      render: json
+    validations:
+      required: false
+  - type: input
+    id: client
+    attributes:
+      label: MCP client or agent
+      placeholder: Claude Desktop, Hermes, OpenCode, Cursor, custom
+    validations:
+      required: false
+  - type: input
+    id: platform
+    attributes:
+      label: OS/platform
+      placeholder: macOS, Linux, Windows, WSL, Docker
+    validations:
+      required: false

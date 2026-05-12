@@ -8,6 +8,18 @@ license = { text = "MIT" }
 authors = [
   { name = "Isaac Sanchez" }
 ]
+keywords = ["mcp", "model-context-protocol", "diagnostics", "agents", "hermes", "opencode"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Testing",
+  "Topic :: System :: Systems Administration"
+]
 dependencies = [
   "typer>=0.12.0",
   "rich>=13.7.0",
@@ -25,6 +37,11 @@ mcp = [
 
 [project.scripts]
 mcp-doctor = "mcp_doctor.cli:app"
+
+[project.urls]
+Source = "https://github.com/isaac-sanchez/mcp-doctor"
+Issues = "https://github.com/isaac-sanchez/mcp-doctor/issues"
+Documentation = "https://github.com/isaac-sanchez/mcp-doctor#readme"
 
 [build-system]
 requires = ["hatchling"]

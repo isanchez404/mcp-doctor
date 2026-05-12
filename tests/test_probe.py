@@ -1,4 +1,6 @@
 from pathlib import Path
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from mcp_doctor.config import MCPConfig, MCPServerConfig
 from mcp_doctor.probe import probe_server
@@ -6,6 +8,22 @@ from mcp_doctor.probe import probe_server
 
 def _config(server: MCPServerConfig) -> MCPConfig:
     return MCPConfig(servers={server.name: server}, source_path=Path("test.json"))
+
+
+class _OkHandler(BaseHTTPRequestHandler):
+    def do_GET(self):  # noqa: N802 - stdlib API
+        self.send_response(200)
+        self.end_headers()
+
+    def log_message(self, format, *args):  # noqa: A002 - stdlib API
+        return
+
+
+def _http_url() -> tuple[str, ThreadingHTTPServer]:
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _OkHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return f"http://127.0.0.1:{server.server_address[1]}/mcp", server
 
 
 def test_existing_executable_returns_ok():
@@ -46,18 +64,22 @@ def test_unknown_server_returns_friendly_diagnostic():
 
 
 def test_http_server_probe_does_not_require_command():
-    config = _config(
-        MCPServerConfig(
-            name="remote",
-            url="https://example.com/mcp",
-            raw={"url": "https://example.com/mcp"},
+    url, server_process = _http_url()
+    try:
+        config = _config(
+            MCPServerConfig(
+                name="remote",
+                url=url,
+                raw={"url": url},
+            )
         )
-    )
 
-    result = probe_server(config, "remote")
+        result = probe_server(config, "remote")
 
-    assert result.ok is True
-    assert result.diagnostics == []
+        assert result.ok is True
+        assert result.diagnostics == []
+    finally:
+        server_process.shutdown()
 
 
 def test_probe_never_leaks_secret_env_values_in_diagnostics():
